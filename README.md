@@ -108,11 +108,12 @@ stellar_Earn/
 ### Prerequisites
 
 - **Node.js ≥ 20** (CI uses Node 20)
-- **Bun ≥ 1.1** — the backend's TypeORM/migration scripts invoke `bun run …`
+- **npm** — the backend and CI install with `npm ci`
+- **Bun** — required only to run the backend's TypeORM **migration** scripts (they call `bun run typeorm …`)
 - **Rust (stable)** + the `wasm32-unknown-unknown` target, and the **Stellar CLI** (`stellar`) for the contract
 - **Docker** (for local PostgreSQL + Redis) and **Git**
 
-> Package-manager note: the BackEnd currently contains multiple lockfiles (`bun.lock`, `package-lock.json`, `pnpm-lock.yaml`); its scripts standardize on **Bun**. The FrontEnd uses npm/pnpm. Consolidating to a single package manager per app is a tracked cleanup task.
+> Package-manager note: backend install/build/test use **npm** (CI runs `npm ci`); only the migration npm-scripts invoke **Bun**. The FrontEnd uses npm. Removing the extra backend lockfiles so there is a single `package-lock.json` is a tracked cleanup task.
 
 ### Quickstart
 
@@ -126,10 +127,10 @@ docker compose -f BackEnd/docker-compose.yml up -d
 
 # 3. Backend  →  http://localhost:3001
 cd BackEnd
-cp .env.example .env             # set DATABASE_URL to the compose Postgres
-bun install                      # (npm ci also works for install)
-bun run migration:run            # apply TypeORM migrations
-bun run start:dev
+cp .env.example .env             # DATABASE_URL already matches the compose Postgres
+npm ci                           # install (CI uses npm)
+npm run migration:run            # apply TypeORM migrations (requires Bun: the script calls `bun run typeorm`)
+npm run start:dev
 
 # 4. Frontend  →  http://localhost:3000   (in a new terminal)
 cd FrontEnd/my-app
